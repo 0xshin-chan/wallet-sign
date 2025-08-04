@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+option go_package = "./protobuf/wallet";
+
+enum ReturnCode {
+  ERROR = 0;
+  SUCCESS = 1;
+}
+
+message SignWay {
+  string name = 1;
+}
+
+message SupportSignRequest {
+  string consumer_token = 1;
+}
+
+message SupportSignResponse {
+  ReturnCode code = 1;
+  string message = 2;
+  repeated SignWay sign_way_list = 3;
+}
+
+message ExportPublicKey {
+  string public_key = 1;
+  string compress_public_key = 2;
+}
+
+message CreateKeyPairAndExportPublicKeyRequest {
+  string consumer_token = 1;
+  string sign_type = 2;
+  uint64 key_num = 3;
+}
+
+message CreateKeyPairAndExportPublicKeyResponse {
+  ReturnCode code = 1;
+  string message = 2;
+  repeated ExportPublicKey public_key_list = 3;
+}
+
+message SignMessageSignatureRequest {
+  string consumer_token = 1;
+  string sign_type = 2;
+  string public_key = 3;
+  string tx_message_hash =4;
+}
+
+message SignMessageSignatureResponse {
+  ReturnCode code = 1;
+  string message = 2;
+  string signature = 3;
+}
+
+message MessageHash {
+  string public_key = 1;
+  string tx_message_hash = 2;
+  string sign_type = 3;
+}
+
+message MessageSignature {
+  string tx_message_hash = 1;
+  string signature = 2;
+}
+
+message SignBatchMessageSignatureRequest {
+  string consumer_token = 1;
+  repeated MessageHash message_hashs = 2;
+}
+
+message SignBatchMessageSignatureResponse {
+  ReturnCode code = 1;
+  string message = 2;
+  repeated MessageSignature message_signatures = 3;
+}
+
+service WalletService {
+  rpc getSupportSignType(SupportSignRequest) returns (SupportSignResponse){}
+  rpc createKeyPairsExportPublicKeyList(CreateKeyPairAndExportPublicKeyRequest) returns (CreateKeyPairAndExportPublicKeyResponse){}
+  rpc signMessageSignature(SignMessageSignatureRequest) returns (SignMessageSignatureResponse){}
+  rpc signBatchMessageSignature(SignBatchMessageSignatureRequest) returns (SignBatchMessageSignatureResponse){}
+}
+
+
+
+
+
+
+
