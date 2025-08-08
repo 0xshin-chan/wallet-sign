@@ -37,5 +37,5 @@ func toBytes(dataStr string) []byte {
 }
 
 func toString(byteArr []byte) string {
-	return string(byteArr)
+	return hex.EncodeToString(byteArr)
 }

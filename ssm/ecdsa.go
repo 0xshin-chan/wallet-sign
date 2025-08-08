@@ -9,7 +9,9 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 )
 
-func CreateECDSAKeyPair() (priKey string, pubKey string, compressPubKey string, err error) {
+type ECDSASigner struct{}
+
+func (ecdsa *ECDSASigner) CreateKeyPair() (priKey string, pubKey string, compressPubKey string, err error) {
 	privateKey, err := crypto.GenerateKey()
 	if err != nil {
 		log.Error("generate key fail", "err", err)
@@ -21,7 +23,7 @@ func CreateECDSAKeyPair() (priKey string, pubKey string, compressPubKey string, 
 	return privateKeyStr, publicKeyStr, compressPublicKeyStr, nil
 }
 
-func SignECDSAMessage(priKey string, txMsg string) (string, error) {
+func (ecdsa *ECDSASigner) SignMessage(priKey string, txMsg string) (string, error) {
 	hash := common.HexToHash(txMsg)
 	priByte, err := hex.DecodeString(priKey)
 	if err != nil {
@@ -41,7 +43,7 @@ func SignECDSAMessage(priKey string, txMsg string) (string, error) {
 	return hex.EncodeToString(signatureByte), nil
 }
 
-func VerifyEcdsaSignature(publicKey, txMsg, signature string) (bool, error) {
+func (ecdsa *ECDSASigner) VerifySignature(publicKey, txMsg, signature string) (bool, error) {
 	pubKeyByte, err := hex.DecodeString(publicKey)
 	if err != nil {
 		log.Error("decode public key fail", "err", err)

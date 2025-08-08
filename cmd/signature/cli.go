@@ -2,31 +2,28 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
+
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/urfave/cli/v2"
+
 	"github.com/huahaiwudi/wallet-sign/common/cliapp"
 	"github.com/huahaiwudi/wallet-sign/config"
 	flags2 "github.com/huahaiwudi/wallet-sign/flags"
-	"github.com/huahaiwudi/wallet-sign/leveldb"
 	"github.com/huahaiwudi/wallet-sign/services/rpc"
-	"github.com/urfave/cli/v2"
 )
 
 func runRpc(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Lifecycle, error) {
 	fmt.Println("running grpc services....")
-	cfg := config.NewConfig(ctx)
-	grpcServerCfg := &rpc.RpcServiceConfig{
-		HostName:   cfg.RpcServer.Host,
-		Port:       cfg.RpcServer.Port,
-		KeyName:    cfg.KeyName,
-		KeyPath:    cfg.CredentialsFile,
-		HsmEnabled: cfg.HsmEnabled,
+	var f = flag.String("c", "config.yml", "config path")
+	flag.Parse()
+	cfg, err1 := config.NewConfig(*f)
+	if err1 != nil {
+		log.Error("new config failed", "err", err1)
+		return nil, err1
 	}
-	db, err := leveldb.NewKeyStore(cfg.LevelDbPath)
-	if err != nil {
-		log.Error("new key store level db", "err", err)
-	}
-	return rpc.NewRpcService(db, grpcServerCfg)
+	return rpc.NewRpcService(cfg)
 }
 
 func NewCli() *cli.App {

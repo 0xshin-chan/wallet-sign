@@ -1,32 +1,46 @@
 package config
 
 import (
-	"github.com/huahaiwudi/wallet-sign/flags"
-	"github.com/urfave/cli/v2"
+	"os"
+
+	"gopkg.in/yaml.v2"
+
+	"github.com/ethereum/go-ethereum/log"
 )
 
 type ServerConfig struct {
-	Host string
-	Port int
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
 type Config struct {
-	LevelDbPath     string
-	RpcServer       ServerConfig
-	CredentialsFile string
-	KeyName         string
-	HsmEnabled      bool
+	LevelDbPath     string       `yaml:"level_db_path"`
+	RpcServer       ServerConfig `yaml:"rpc_server"`
+	CredentialsFile string       `yaml:"credentials_file"`
+	KeyName         string       `yaml:"key_name"`
+	KeyPath         string       `yaml:"key_path"`
+	HsmEnabled      bool         `yaml:"hsm_enabled"`
+	Chains          []string     `yaml:"chains"`
 }
 
-func NewConfig(ctx *cli.Context) Config {
-	return Config{
-		LevelDbPath:     ctx.String(flags.LevelDbPathFlag.Name),
-		CredentialsFile: ctx.String(flags.CredentialsFileFlag.Name),
-		KeyName:         ctx.String(flags.KeyNameFlag.Name),
-		HsmEnabled:      ctx.Bool(flags.HsmEnable.Name),
-		RpcServer: ServerConfig{
-			Host: ctx.String(flags.RpcHostFlag.Name),
-			Port: ctx.Int(flags.RpcPortFlag.Name),
-		},
+func NewConfig(path string) (*Config, error) {
+	var config = new(Config)
+	h := log.NewTerminalHandler(os.Stdout, true)
+	log.SetDefault(log.NewLogger(h))
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		log.Error("read config file error", "err", err)
+		return nil, err
 	}
+
+	err = yaml.Unmarshal(data, config)
+	if err != nil {
+		log.Error("unmarshal config file error", "err", err)
+		return nil, err
+	}
+	return config, nil
 }
+
+const UnsupportedChain = "Unsupport chain"
+const UnsupportedOperation = UnsupportedChain

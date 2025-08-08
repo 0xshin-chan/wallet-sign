@@ -7,16 +7,18 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 )
 
-func CreateEdDSAKeyPair() (string, string, error) {
+type EdDSASigner struct{}
+
+func (eddsa *EdDSASigner) CreateKeyPair() (string, string, string, error) {
 	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		log.Error("create key pair fail", "err", err)
-		return EmptyHexString, EmptyHexString, err
+		return EmptyHexString, EmptyHexString, EmptyHexString, err
 	}
-	return hex.EncodeToString(privateKey), hex.EncodeToString(publicKey), err
+	return hex.EncodeToString(privateKey), hex.EncodeToString(publicKey), hex.EncodeToString(publicKey), err
 }
 
-func SignEdDSAMessage(priKey string, txMsg string) (string, error) {
+func (eddsa *EdDSASigner) SignMessage(priKey string, txMsg string) (string, error) {
 	priKeyByte, err := hex.DecodeString(priKey)
 	if err != nil {
 		log.Error("decode private key fail", "err", err)
@@ -31,9 +33,9 @@ func SignEdDSAMessage(priKey string, txMsg string) (string, error) {
 	return hex.EncodeToString(signMsg), nil
 }
 
-func VerifyEdDSASign(pubKey string, txMsg string, signature string) bool {
+func (eddsa *EdDSASigner) VerifySignature(pubKey string, txMsg string, signature string) (bool, error) {
 	pubKeyByte, _ := hex.DecodeString(pubKey)
 	txMsgByte, _ := hex.DecodeString(txMsg)
 	signByte, _ := hex.DecodeString(signature)
-	return ed25519.Verify(pubKeyByte, txMsgByte, signByte)
+	return ed25519.Verify(pubKeyByte, txMsgByte, signByte), nil
 }
