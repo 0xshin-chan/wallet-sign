@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcec/v2/schnorr"
 	"github.com/btcsuite/btcd/btcutil"
@@ -30,6 +31,7 @@ func NewChainAdaptor(conf *config.Config, db *leveldb.Keys, hsmCli *hsm.HsmClien
 	return &ChainAdaptor{
 		db:        db,
 		HsmClient: hsmCli,
+		signer:    &ssm.ECDSASigner{},
 	}, nil
 }
 
@@ -196,6 +198,27 @@ func (c ChainAdaptor) CreateKeyPairsWithAddresses(ctx context.Context, request *
 	resp.Code = wallet.ReturnCode_SUCCESS
 	resp.Message = "create keys and address success"
 	resp.PublicKeyAddresses = retKeyListWithAddressList
+	return resp, nil
+}
+
+func (c ChainAdaptor) SignTransactionMessage(ctx context.Context, request *wallet.SignTransactionMessageRequest) (*wallet.SignTransactionMessageResponse, error) {
+	resp := &wallet.SignTransactionMessageResponse{
+		Code: wallet.ReturnCode_ERROR,
+	}
+
+	privKey, isOk := c.db.GetPrivKey(request.PublicKey)
+	if !isOk {
+		return nil, errors.New("get private key fail")
+	}
+
+	signature, err := c.signer.SignMessage(privKey, request.MessageHash)
+	if err != nil {
+		log.Error("sign message fail", "err", err)
+	}
+
+	resp.Code = wallet.ReturnCode_SUCCESS
+	resp.Message = "sign message success"
+	resp.Signature = signature
 	return resp, nil
 }
 

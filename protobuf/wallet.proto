@@ -72,6 +72,19 @@ message CreateKeyPairsWithAddressesResponse{
   repeated ExportPublicKeyWithAddress public_key_addresses = 3;
 }
 
+message SignTransactionMessageRequest{
+  string consumer_token = 1;
+  string chain_name = 2;
+  string network = 3;
+  string public_key = 4;
+  string message_hash = 5;
+}
+
+message SignTransactionMessageResponse{
+  ReturnCode Code = 1;
+  string message = 2;
+  string signature = 3;
+}
 
 message BuildAndSignTransactionRequest {
   string consumer_token = 1;
@@ -122,6 +135,11 @@ service WalletService {
   rpc getChainSchema(ChainSchemaRequest) returns (ChainSchemaResponse) {}
   rpc createKeyPairsExportPublicKeyList(CreateKeyPairAndExportPublicKeyRequest) returns (CreateKeyPairAndExportPublicKeyResponse) {}
   rpc createKeyPairsWithAddresses(CreateKeyPairsWithAddressesRequest) returns (CreateKeyPairsWithAddressesResponse) {}
+
+  // 根据 32 字节的 hash 进行签名
+  rpc signTransactionMessage(SignTransactionMessageRequest) returns (SignTransactionMessageResponse){}
+
+  // 完整签名的流程
   rpc buildAndSignTransaction(BuildAndSignTransactionRequest) returns (BuildAndSignTransactionResponse){}
   rpc buildAndSignBatchTransaction(BuildAndSignBatchTransactionRequest) returns (BuildAndSignBatchTransactionResponse){}
 }

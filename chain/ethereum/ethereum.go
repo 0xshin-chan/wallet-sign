@@ -27,12 +27,14 @@ const ChainName = "Ethereum"
 type ChainAdaptor struct {
 	db        *leveldb.Keys
 	HsmClient *hsm.HsmClient
+	signer    *ssm.ECDSASigner
 }
 
 func NewChainAdaptor(conf *config.Config, db *leveldb.Keys, hsmCli *hsm.HsmClient) (chain.IChainAdaptor, error) {
 	return &ChainAdaptor{
 		db:        db,
 		HsmClient: hsmCli,
+		signer:    &ssm.ECDSASigner{},
 	}, nil
 }
 
@@ -82,8 +84,6 @@ func (c ChainAdaptor) GetChainSchema(ctx context.Context, request *wallet.ChainS
 }
 
 func (c ChainAdaptor) CreateKeyPairsExportPublicKeyList(ctx context.Context, request *wallet.CreateKeyPairAndExportPublicKeyRequest) (*wallet.CreateKeyPairAndExportPublicKeyResponse, error) {
-	var signer ssm.Signer
-	signer = &ssm.ECDSASigner{}
 
 	resp := &wallet.CreateKeyPairAndExportPublicKeyResponse{
 		Code: wallet.ReturnCode_ERROR,
@@ -97,7 +97,7 @@ func (c ChainAdaptor) CreateKeyPairsExportPublicKeyList(ctx context.Context, req
 	var retKeyList []*wallet.ExportPublicKey
 
 	for counter := 0; counter < int(request.KeyNum); counter++ {
-		priKey, pubKey, compressPubKey, err := signer.CreateKeyPair()
+		priKey, pubKey, compressPubKey, err := c.signer.CreateKeyPair()
 		if err != nil {
 			resp.Message = "create key pair fail"
 			return resp, nil
@@ -125,8 +125,6 @@ func (c ChainAdaptor) CreateKeyPairsExportPublicKeyList(ctx context.Context, req
 }
 
 func (c ChainAdaptor) CreateKeyPairsWithAddresses(ctx context.Context, request *wallet.CreateKeyPairsWithAddressesRequest) (*wallet.CreateKeyPairsWithAddressesResponse, error) {
-	var signer ssm.Signer
-	signer = &ssm.ECDSASigner{}
 	resp := &wallet.CreateKeyPairsWithAddressesResponse{
 		Code: wallet.ReturnCode_ERROR,
 	}
@@ -138,7 +136,7 @@ func (c ChainAdaptor) CreateKeyPairsWithAddresses(ctx context.Context, request *
 	var keyList []leveldb.Key
 	var retKeyWithAddrList []*wallet.ExportPublicKeyWithAddress
 	for counter := 0; counter < int(request.KeyNum); counter++ {
-		priKey, pubKey, compressPubKey, err := signer.CreateKeyPair()
+		priKey, pubKey, compressPubKey, err := c.signer.CreateKeyPair()
 		if err != nil {
 			resp.Message = "create key pair fail"
 			return resp, nil
@@ -168,9 +166,28 @@ func (c ChainAdaptor) CreateKeyPairsWithAddresses(ctx context.Context, request *
 	return resp, nil
 }
 
+func (c ChainAdaptor) SignTransactionMessage(ctx context.Context, request *wallet.SignTransactionMessageRequest) (*wallet.SignTransactionMessageResponse, error) {
+	resp := &wallet.SignTransactionMessageResponse{
+		Code: wallet.ReturnCode_ERROR,
+	}
+
+	privKey, isOk := c.db.GetPrivKey(request.PublicKey)
+	if !isOk {
+		return nil, errors.New("get private key fail")
+	}
+
+	signature, err := c.signer.SignMessage(privKey, request.MessageHash)
+	if err != nil {
+		log.Error("sign message fail", "err", err)
+	}
+
+	resp.Code = wallet.ReturnCode_SUCCESS
+	resp.Message = "sign message success"
+	resp.Signature = signature
+	return resp, nil
+}
+
 func (c ChainAdaptor) BuildAndSignTransaction(ctx context.Context, request *wallet.BuildAndSignTransactionRequest) (*wallet.BuildAndSignTransactionResponse, error) {
-	var signer ssm.Signer
-	signer = &ssm.ECDSASigner{}
 
 	resp := &wallet.BuildAndSignTransactionResponse{
 		Code: wallet.ReturnCode_ERROR,
@@ -197,7 +214,7 @@ func (c ChainAdaptor) BuildAndSignTransaction(ctx context.Context, request *wall
 		return resp, nil
 	}
 
-	signature, err := signer.SignMessage(privKey, rawTx)
+	signature, err := c.signer.SignMessage(privKey, rawTx)
 	if err != nil {
 		log.Error("sign transaction fail", "err", err)
 		resp.Message = "sign transaction fail"

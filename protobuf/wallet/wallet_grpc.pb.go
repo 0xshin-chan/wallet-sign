@@ -23,6 +23,7 @@ const (
 	WalletService_GetChainSchema_FullMethodName                    = "/theweb3.wallet.WalletService/getChainSchema"
 	WalletService_CreateKeyPairsExportPublicKeyList_FullMethodName = "/theweb3.wallet.WalletService/createKeyPairsExportPublicKeyList"
 	WalletService_CreateKeyPairsWithAddresses_FullMethodName       = "/theweb3.wallet.WalletService/createKeyPairsWithAddresses"
+	WalletService_SignTransactionMessage_FullMethodName            = "/theweb3.wallet.WalletService/signTransactionMessage"
 	WalletService_BuildAndSignTransaction_FullMethodName           = "/theweb3.wallet.WalletService/buildAndSignTransaction"
 	WalletService_BuildAndSignBatchTransaction_FullMethodName      = "/theweb3.wallet.WalletService/buildAndSignBatchTransaction"
 )
@@ -35,6 +36,9 @@ type WalletServiceClient interface {
 	GetChainSchema(ctx context.Context, in *ChainSchemaRequest, opts ...grpc.CallOption) (*ChainSchemaResponse, error)
 	CreateKeyPairsExportPublicKeyList(ctx context.Context, in *CreateKeyPairAndExportPublicKeyRequest, opts ...grpc.CallOption) (*CreateKeyPairAndExportPublicKeyResponse, error)
 	CreateKeyPairsWithAddresses(ctx context.Context, in *CreateKeyPairsWithAddressesRequest, opts ...grpc.CallOption) (*CreateKeyPairsWithAddressesResponse, error)
+	// 根据 32 字节的 hash 进行签名
+	SignTransactionMessage(ctx context.Context, in *SignTransactionMessageRequest, opts ...grpc.CallOption) (*SignTransactionMessageResponse, error)
+	// 完整签名的流程
 	BuildAndSignTransaction(ctx context.Context, in *BuildAndSignTransactionRequest, opts ...grpc.CallOption) (*BuildAndSignTransactionResponse, error)
 	BuildAndSignBatchTransaction(ctx context.Context, in *BuildAndSignBatchTransactionRequest, opts ...grpc.CallOption) (*BuildAndSignBatchTransactionResponse, error)
 }
@@ -87,6 +91,16 @@ func (c *walletServiceClient) CreateKeyPairsWithAddresses(ctx context.Context, i
 	return out, nil
 }
 
+func (c *walletServiceClient) SignTransactionMessage(ctx context.Context, in *SignTransactionMessageRequest, opts ...grpc.CallOption) (*SignTransactionMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SignTransactionMessageResponse)
+	err := c.cc.Invoke(ctx, WalletService_SignTransactionMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *walletServiceClient) BuildAndSignTransaction(ctx context.Context, in *BuildAndSignTransactionRequest, opts ...grpc.CallOption) (*BuildAndSignTransactionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(BuildAndSignTransactionResponse)
@@ -115,6 +129,9 @@ type WalletServiceServer interface {
 	GetChainSchema(context.Context, *ChainSchemaRequest) (*ChainSchemaResponse, error)
 	CreateKeyPairsExportPublicKeyList(context.Context, *CreateKeyPairAndExportPublicKeyRequest) (*CreateKeyPairAndExportPublicKeyResponse, error)
 	CreateKeyPairsWithAddresses(context.Context, *CreateKeyPairsWithAddressesRequest) (*CreateKeyPairsWithAddressesResponse, error)
+	// 根据 32 字节的 hash 进行签名
+	SignTransactionMessage(context.Context, *SignTransactionMessageRequest) (*SignTransactionMessageResponse, error)
+	// 完整签名的流程
 	BuildAndSignTransaction(context.Context, *BuildAndSignTransactionRequest) (*BuildAndSignTransactionResponse, error)
 	BuildAndSignBatchTransaction(context.Context, *BuildAndSignBatchTransactionRequest) (*BuildAndSignBatchTransactionResponse, error)
 }
@@ -137,6 +154,9 @@ func (UnimplementedWalletServiceServer) CreateKeyPairsExportPublicKeyList(contex
 }
 func (UnimplementedWalletServiceServer) CreateKeyPairsWithAddresses(context.Context, *CreateKeyPairsWithAddressesRequest) (*CreateKeyPairsWithAddressesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateKeyPairsWithAddresses not implemented")
+}
+func (UnimplementedWalletServiceServer) SignTransactionMessage(context.Context, *SignTransactionMessageRequest) (*SignTransactionMessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignTransactionMessage not implemented")
 }
 func (UnimplementedWalletServiceServer) BuildAndSignTransaction(context.Context, *BuildAndSignTransactionRequest) (*BuildAndSignTransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BuildAndSignTransaction not implemented")
@@ -236,6 +256,24 @@ func _WalletService_CreateKeyPairsWithAddresses_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WalletService_SignTransactionMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignTransactionMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WalletServiceServer).SignTransactionMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WalletService_SignTransactionMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WalletServiceServer).SignTransactionMessage(ctx, req.(*SignTransactionMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _WalletService_BuildAndSignTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BuildAndSignTransactionRequest)
 	if err := dec(in); err != nil {
@@ -294,6 +332,10 @@ var WalletService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "createKeyPairsWithAddresses",
 			Handler:    _WalletService_CreateKeyPairsWithAddresses_Handler,
+		},
+		{
+			MethodName: "signTransactionMessage",
+			Handler:    _WalletService_SignTransactionMessage_Handler,
 		},
 		{
 			MethodName: "buildAndSignTransaction",

@@ -106,6 +106,7 @@ func (d *ChainDispatcher) Interceptor(ctx context.Context, req interface{}, info
 }
 
 func (d *ChainDispatcher) preHandler(req interface{}) (resp *CommonReply) {
+	// proto 生成的 Go struct 已经实现了接口，因为生成的代码里自带了 GetConsumerToken() 和 GetChainName() 方法。
 	consumerToken := req.(CommonRequest).GetConsumerToken()
 	log.Debug("consumer token", "consumerToken", consumerToken, "req", req)
 	if consumerToken != AccessToken {
@@ -168,6 +169,17 @@ func (d *ChainDispatcher) CreateKeyPairsWithAddresses(ctx context.Context, reque
 		}, nil
 	}
 	return d.registry[request.ChainName].CreateKeyPairsWithAddresses(ctx, request)
+}
+
+func (d *ChainDispatcher) SignTransactionMessage(ctx context.Context, request *wallet.SignTransactionMessageRequest) (*wallet.SignTransactionMessageResponse, error) {
+	resp := d.preHandler(request)
+	if resp != nil {
+		return &wallet.SignTransactionMessageResponse{
+			Code:    resp.Code,
+			Message: resp.Message,
+		}, nil
+	}
+	return d.registry[request.ChainName].SignTransactionMessage(ctx, request)
 }
 
 func (d *ChainDispatcher) BuildAndSignTransaction(ctx context.Context, request *wallet.BuildAndSignTransactionRequest) (*wallet.BuildAndSignTransactionResponse, error) {
