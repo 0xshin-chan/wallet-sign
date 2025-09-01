@@ -14,14 +14,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/huahaiwudi/wallet-sign/chain"
-	"github.com/huahaiwudi/wallet-sign/chain/bitcoin"
-	"github.com/huahaiwudi/wallet-sign/chain/ethereum"
-	"github.com/huahaiwudi/wallet-sign/chain/solana"
-	"github.com/huahaiwudi/wallet-sign/config"
-	"github.com/huahaiwudi/wallet-sign/hsm"
-	"github.com/huahaiwudi/wallet-sign/leveldb"
-	"github.com/huahaiwudi/wallet-sign/protobuf/wallet"
+	"github.com/0xshin-chan/wallet-sign/chain"
+	"github.com/0xshin-chan/wallet-sign/chain/bitcoin"
+	"github.com/0xshin-chan/wallet-sign/chain/ethereum"
+	"github.com/0xshin-chan/wallet-sign/chain/solana"
+	"github.com/0xshin-chan/wallet-sign/config"
+	"github.com/0xshin-chan/wallet-sign/hsm"
+	"github.com/0xshin-chan/wallet-sign/leveldb"
+	"github.com/0xshin-chan/wallet-sign/protobuf/wallet"
 )
 
 const (

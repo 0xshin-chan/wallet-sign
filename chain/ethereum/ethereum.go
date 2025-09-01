@@ -14,12 +14,12 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 
-	"github.com/huahaiwudi/wallet-sign/chain"
-	"github.com/huahaiwudi/wallet-sign/config"
-	"github.com/huahaiwudi/wallet-sign/hsm"
-	"github.com/huahaiwudi/wallet-sign/leveldb"
-	"github.com/huahaiwudi/wallet-sign/protobuf/wallet"
-	"github.com/huahaiwudi/wallet-sign/ssm"
+	"github.com/0xshin-chan/wallet-sign/chain"
+	"github.com/0xshin-chan/wallet-sign/config"
+	"github.com/0xshin-chan/wallet-sign/hsm"
+	"github.com/0xshin-chan/wallet-sign/leveldb"
+	"github.com/0xshin-chan/wallet-sign/protobuf/wallet"
+	"github.com/0xshin-chan/wallet-sign/ssm"
 )
 
 const ChainName = "Ethereum"
@@ -214,6 +214,7 @@ func (c ChainAdaptor) BuildAndSignTransaction(ctx context.Context, request *wall
 		return resp, nil
 	}
 
+	// 用私钥对交易哈希进行签名，得到 65 字节的签名 (R, S, V)
 	signature, err := c.signer.SignMessage(privKey, rawTx)
 	if err != nil {
 		log.Error("sign transaction fail", "err", err)

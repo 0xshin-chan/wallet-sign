@@ -17,12 +17,12 @@ import (
 	"github.com/gagliardetto/solana-go/programs/system"
 	"github.com/gagliardetto/solana-go/programs/token"
 
-	"github.com/huahaiwudi/wallet-sign/chain"
-	"github.com/huahaiwudi/wallet-sign/config"
-	"github.com/huahaiwudi/wallet-sign/hsm"
-	"github.com/huahaiwudi/wallet-sign/leveldb"
-	"github.com/huahaiwudi/wallet-sign/protobuf/wallet"
-	"github.com/huahaiwudi/wallet-sign/ssm"
+	"github.com/0xshin-chan/wallet-sign/chain"
+	"github.com/0xshin-chan/wallet-sign/config"
+	"github.com/0xshin-chan/wallet-sign/hsm"
+	"github.com/0xshin-chan/wallet-sign/leveldb"
+	"github.com/0xshin-chan/wallet-sign/protobuf/wallet"
+	"github.com/0xshin-chan/wallet-sign/ssm"
 )
 
 const ChainName = "Solana"

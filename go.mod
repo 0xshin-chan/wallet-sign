@@ -1,4 +1,4 @@
-module github.com/huahaiwudi/wallet-sign
+module github.com/0xshin-chan/wallet-sign
 
 go 1.23.4
 

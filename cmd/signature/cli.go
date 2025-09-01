@@ -8,10 +8,10 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli/v2"
 
-	"github.com/huahaiwudi/wallet-sign/common/cliapp"
-	"github.com/huahaiwudi/wallet-sign/config"
-	flags2 "github.com/huahaiwudi/wallet-sign/flags"
-	"github.com/huahaiwudi/wallet-sign/services/rpc"
+	"github.com/0xshin-chan/wallet-sign/common/cliapp"
+	"github.com/0xshin-chan/wallet-sign/config"
+	flags2 "github.com/0xshin-chan/wallet-sign/flags"
+	"github.com/0xshin-chan/wallet-sign/services/rpc"
 )
 
 func runRpc(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Lifecycle, error) {

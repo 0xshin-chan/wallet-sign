@@ -88,7 +88,7 @@ func CreateEip1559SignedTx(txData *types.DynamicFeeTx, signature []byte, chainId
 	if err != nil {
 		return nil, nil, "", "", errors.New("tx with signature fail")
 	}
-	// 将已签名交易进行 RLP 编码（以太坊要求的交易格式）
+	// 将已签名交易进行 RLP 编码（以太坊要求的交易格式）生成最终的可广播原始交易
 	signedTxData, err := rlp.EncodeToBytes(signedTx)
 	if err != nil {
 		return nil, nil, "", "", errors.New("encode tx to byte fail")

@@ -10,10 +10,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/huahaiwudi/wallet-sign/chaindispatcher"
-	"github.com/huahaiwudi/wallet-sign/config"
-	"github.com/huahaiwudi/wallet-sign/hsm"
-	"github.com/huahaiwudi/wallet-sign/protobuf/wallet"
+	"github.com/0xshin-chan/wallet-sign/chaindispatcher"
+	"github.com/0xshin-chan/wallet-sign/config"
+	"github.com/0xshin-chan/wallet-sign/hsm"
+	"github.com/0xshin-chan/wallet-sign/protobuf/wallet"
 )
 
 const MaxReceivedMessageSize = 1024 * 1024 * 30000
